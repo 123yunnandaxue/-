@@ -35,7 +35,7 @@
  **2.字符编码**
  参数矩阵被随机初始化在![](https://github.com/123yunnandaxue/paper-notebook/blob/main/End-to-end%20Sequence%20Labeling%20via%20Bi-directional%20LSTM-CNNs-CRF/picture/bed949a6-0cba-4a59-a342-06020b998234.png)范围内均匀采样。残差向量Bias被初始化为0，但是LSTM中遗忘门的残差向量被初始化为1。<br>
 ### 最优化算法
-参数最优化用的是小批量梯度下降（SGD）算法，批量大小设置为10，动量为0.9。初始化学习率为0.01，学习率的更新公式为：
+参数最优化用的是小批量梯度下降（SGD）算法，批量大小设置为10，动量为0.9。初始化学习率为0.01，学习率的更新公式为：![](https://github.com/123yunnandaxue/paper-notebook/blob/main/End-to-end%20Sequence%20Labeling%20via%20Bi-directional%20LSTM-CNNs-CRF/picture/b74d62ac-2b1a-459e-a3b9-02f3d9934e1a.png)
 为了减小梯度爆炸的影响，使用了梯度裁剪，还尝试了其他的更好的最优化算法，如：AdaDelta算法和Adam算法，但是在我们的初步实验中，它们都没有通过动量和梯度裁剪对SGD进⾏有意义的改善。<br>
 **早停**使用基于验证集的早停，根据我们的实验最优参数出现在50纪元左右。<br>
 **微调**对于每一个纪元的编码，采用微调进行编码初始化，通过反向传播梯度的神经网络模型的梯度更新进行修改。<br>
