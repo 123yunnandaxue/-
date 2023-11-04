@@ -27,7 +27,7 @@
 2. 解码器：解码器还由N = 6个相同层的堆栈组成。 除了每个编码器层中的两个子层之外，解码器还插入第三子层，该第三子层对编码器堆栈的输出执行多头关注。 与编码器类似，我们在每个子层周围采用残余连接，然后进行层归一化。 我们还修改了解码器堆栈中的自我注意子层，以防止位置关注后续位置。这种掩盖，加上输出编码被一个位置偏移的事实，确保了对位置i的预测只能依赖于小于i位置的已知输出。
 ### 注意力
 注意力函数可以描述为将一个查询和一组键值对映射到输出，其中查询、键、值和输出都是向量。输出计算为值的加权总和，其中分配给每个值的权重由具有相应键的查询的兼容性函数计算。<br>
-![](image.png)<br>
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/Attention%20Is%20All%20You%20Need/pictures/01.png)<br>
 首先我们了解一下如何使用向量来计算自注意力，然后来看它实怎样用矩阵来实现。
 1. 计算自注意力的第一步就是从每个编码器的输入向量（每个单词的词向量）中生成三个向量。也就是说**对于每个单词，我们创造一个查询向量、一个键向量和一个值向量**。**这三个向量是通过词嵌入与三个权重矩阵后相乘创建的**。
 ![](https://mmbiz.qpic.cn/mmbiz_png/wc7YNPm3YxUHic7tfPwZwXcMqIqVTXxLJZR0rAD3otWvlHAbLAcsy0MicF0EtW40YlLGdEoueia3njJPdDAv3xMvQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
@@ -52,7 +52,7 @@ X1与WQ权重矩阵相乘得到q1, 就是与这个单词相关的查询向量。
 ![](https://mmbiz.qpic.cn/mmbiz_png/wc7YNPm3YxUHic7tfPwZwXcMqIqVTXxLJ1CkX3iaCOf0S9l1sMbiafq6bemLUyETia8RMJkibE6cmwV2SfKdtIDAEfw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)<br>
 #### 多头注意力
 我们发现，使用不同的、学习到的线性投影将查询、键和值分别线性投影到dk、dk和dv维度，而不是使用dmodel维度的键、值和查询来执行单一的注意功能。然后，在这些查询、键和值的投影版本中，我们并行地执行注意功能，生成dv维输出值。如图2所示，这些被连接起来并再次投影，从而产生最终值。多头注意允许模型共同关注来自不同位置的不同表示子空间的信息。只有一个注意力集中的头脑，平均化可以抑制这种情况。在这项工作中，我们使用了h=8个平行的注意层，或者说头部。对于每一个，我们使用dk=dv=dmodel/h=64。由于每个头部的维数减少，总的计算成本与全维度的单头部注意的计算成本相似。
-![](https://pic2.zhimg.com/80/v2-478a150bcdc05cf96e713b5b9757a911_720w.webp)
+![](https://pic2.zhimg.com/80/v2-478a150bcdc05cf96e713b5b9757a911_720w.webp)<br>
 总结：通过增加一种叫做“多头”注意力（“multi-headed” attention）的机制，论文进一步完善了自注意力层，并在两方面提高了注意力层的性能：
 1. 它扩展了模型专注于不同位置的能力。在上面的例子中，虽然每个编码都在z1中有或多或少的体现，但是它可能被实际的单词本身所支配。如果我们翻译一个句子，比如“The animal didn’t cross the street because it was too tired”，我们会想知道“it”指的是哪个词，这时模型的“多头”注意机制会起到作用。
 2. 它给出了注意力层的多个“表示子空间”（representation subspaces）。接下来我们将看到，对于“多头”注意机制，我们有多个查询/键/值权重矩阵集(Transformer使用八个注意力头，因此我们对于每个编码器/解码器有八个矩阵集合)。这些集合中的每一个都是随机初始化的，在训练之后，每个集合都被用来将输入词嵌入(或来自较低编码器/解码器的向量)投影到不同的表示子空间中。在“多头”注意机制下，我们为每个头保持独立的查询/键/值权重矩阵，从而产生不同的查询/键/值矩阵。和之前一样，我们拿X乘以WQ/WK/WV矩阵来产生查询/键/值矩阵。
@@ -68,10 +68,10 @@ Transformer 以三种不同的方式使用multi-head：
 3. 类似地，解码器中的 self-attention层允许解码器中的每个位置关注解码器中直到并包括该位置的所有位置。为了保持解码器的自回归特性，需要防止解码器中的信息向左流动。我们通过屏蔽softmax输入中所有与非法连接相对应的值（设置为–∞）来实现这个内标度点积注意。
 ### 位置前馈网络
 除了注意子层之外，我们的编码器和解码器中的每个层都包含一个完全连接的前馈网络，该网络分别和相同地应用于每个位置。包含中间有着ReLu激活的两个线性层：
-![](https://s2.51cto.com/images/blog/202106/15/35f8b2389d626c811a0be0eae827bb83.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_30,g_se,x_10,y_10,shadow_20,type_ZmFuZ3poZW5naGVpdGk=/format,webp)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/Attention%20Is%20All%20You%20Need/pictures/02.png)
 ### 位置编码
 由于我们的模型不包含递归和卷积，为了使模型能够利用序列的顺序，我们必须注入一些关于序列中标记的相对或绝对位置的信息。为此，我们将“位置编码”添加到编码器和解码器堆栈底部的输入嵌入中。位置编码与嵌入编码具有相同的维度dmodel，因此可以将它们相加。Transformer为每个输入的词嵌入添加了一个向量。这些向量遵循模型学习到的特定模式，这有助于确定每个单词的位置，或序列中不同单词之间的距离。这里的直觉是，将位置向量添加到词嵌入中使得它们在接下来的运算中，能够更好地表达的词与词之间的距离。位置编码的公式为：
-![](image-2.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/Attention%20Is%20All%20You%20Need/pictures/03.png)
 其中pos是位置，i是维度。也就是说，位置编码的每个维度对应于一个正弦。波长形成了从2π到10000·2π的几何级数。我们选择这个函数是因为我们假设它可以让模型很容易地学会通过相对位置来参与，因为对于任何固定偏移量k，P-Epos+k可以表示为P-Epos的线性函数。
 ## 为什么要用自注意力
 在本节中，我们将self-attention层的各个方面与通常用于映射一个可变长度的符号表示序列（x1，…，xn）到另一个等长序列（Z1，…，Zn）的递归和卷积层进行比较。例如典型的序列转换编码器或解码器中的隐藏层。激发我们使用self-attention，我们考虑三个目的：
