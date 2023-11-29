@@ -16,8 +16,8 @@ Li 和 Liang (2021) 提出了“前缀调优”，并在生成任务上显示出
 
 虽然我们与 Li 和 Liang (2021) 以及 Hambardzumyan 等人同时开发了我们的方法。 （2021 年），**我们是第一个证明仅提示调整（没有中间层前缀或特定于任务的输出层）足以与模型调整竞争的人**。 通过第 2-3 节中的详细实验，我们证明语言模型能力是这些方法成功的关键因素。 如图 1 所示，随着规模的扩大，即时调优变得更具竞争力。
 
-![Alt text](image.png)
-![Alt text](image-1.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/image.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/image02.png)
 
 我们在第 4 节中与类似方法进行了比较。明确地将任务特定参数与一般语言理解所需的“通才”参数分开有一系列额外的好处。我们在第 5 节中展示，通过在提示中捕获任务定义，同时保持通才参数固定，我们能够获得更好的域转移弹性。在第 6 节中，我们展示了 “提示集成”Prompt Ensembling，即为同一任务学习多个提示，可以提高质量并且比经典模型集成更有效。最后，在第 7 节中，我们研究了学习到的软提示的可解释性。总之，**我们的主要贡献是： 1. 提出了快速调优，并在大型语言模型体系中展示了其与模型调优的竞争力。 2. 消融许多设计选择，显示质量和稳健性随着规模的增长而提高。 3. 在域转移问题上显示快速调优优于模型调优。 4. 提出“即兴合奏”并显示其有效性。**
 
@@ -103,7 +103,7 @@ Prompt Tuning方法在之前添加一段额外的token，这个由参数确定�
 
 对于按原始方法训练好的T5模型，额外使用LM（语言模型）优化目标进行少量步骤的Finetune，使模型从输出带哨兵的文本转换为输出真实文本，期望T5和 GPT一样生成真实的文本输出。（这是本实验的默认设置）。
 
-![Alt text](image-2.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/IMAGE03.png)
 
 从上图中的图c和d可以发现，使用LM Adaption的策略确实效果要好很多，而且Adaption的时间越长，效果越好，不过只要模型参数足够大，用哪一种策略效果都差不多。
 ### Prompt的长度
@@ -124,23 +124,23 @@ Class Label方案则是将下游任务的标签对应的字符串表示的嵌入
 ### 性能对比
 作者对比了他们的prompt tuning方法和直接对模型进行微调（单任务微调和多任务混合微调）以及GPT-3使用的Prompt Design方法之间的性能差异，发现他们的方法显著优于Prompt Design，并且在模型参数足够大的时候，性能和对整个模型进行微调的效果差不多。
 
-![Alt text](image.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/image.png)
 
 同时，比较了不同调优方法所需要优化的参数量，他们的方法参数量相对来说较少，并且显著低于直接微调的模型。
 
-![Alt text](image-3.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/image04.png)
 
 ###  Domain shift实验
 所谓Domain shift其实就是跨域实验，即训练集与测试集的分布是不同的，来测试模型的泛化性能。
 
 作者以SQuAD作为调优数据集，在调优完成后测试与训练集不同域的其他问答数据集的F1得分（准确性相关的评价指标），最后发现，使用prompt方法确实比直接微调模型具有更好的泛化效果，尤其是在域间差异越大时，泛化效果越好。
 
-![](image-4.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/image05.png)
 
 ### Prompt Ensembling
 现有研究表明，为同一个任务使用不同初始化训练多个模型副本，以多个副本的共同决策结果作为最终输出可以提示模型表现水平。为了验证prompt tuning是否也具有类似的效果，作者为同一个任务训练了5个prompt模型，以投票表决的形式作为最终集成输出。作者发现，在SueprGLUE任务上集成prompt预测的结果优于平均预测结果，同时也优于单个最佳prompt的结果。
 
-![](image-5.png)
+![](https://github.com/123yunnandaxue/paper-notebook/blob/main/The%20Power%20of%20Scale%20for%20Parameter-Efficient%20Prompt%20Tuning/pictures/image06.png)
 ## 可解释性
 理想情况下，可解释的提示应由自然语言组成，该语言清楚地描述了手头的任务，明确地要求模型提供某些结果或操作，并易于理解为什么提示会从模型中引发此类行为。
 
